@@ -36,6 +36,15 @@ This module was built on c++/cli (.Net) and uses [System.Diagnostics.EventLog](h
 
 In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services run with the system account so this project works  well with [WinSer](https://github.com/jfromaniello/winser).
 
+
+## TODO
+
+- Use uv_queue_work to execute the writelog method in a different thread ( ? )
+
+## About win32 native modules
+
+If you are looking on how to create native modules in windows follow [this great tutorial](https://github.com/saary/node.net/).
+
 ## License 
 
 (The MIT License)
