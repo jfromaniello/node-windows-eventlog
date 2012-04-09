@@ -41,11 +41,20 @@ public:
             s_ct->GetFunction());
     }
 
-    EventLog() 
-    {}
+    EventLog(System::String^ source, System::String^ logName) 
+    {
+		if(!System::Diagnostics::EventLog::SourceExists(source)){
+			System::Diagnostics::EventLog::CreateEventSource(source, logName);
+		}
+        
+		_eventLog = gcnew System::Diagnostics::EventLog();
+		_eventLog->Source = source;
+	}
 
     ~EventLog()
-    {}
+    {
+		delete _eventLog;
+	}
 
 	
 	static inline gcroot<System::String^> ParseArgument(Arguments const&args, int argumentIndex)
@@ -71,13 +80,7 @@ public:
 		System::String^ s = ParseArgument(args, 0);
 		System::String^ ln = ParseArgument(args, 1);
 
-		if(!System::Diagnostics::EventLog::SourceExists(s)){
-			System::Diagnostics::EventLog::CreateEventSource(s, ln);
-		}
-        
-		EventLog* pm = new EventLog();
-		pm->_eventLog = gcnew System::Diagnostics::EventLog();
-		pm->_eventLog->Source = s;
+		EventLog* pm = new EventLog(s, ln);
 
         pm->Wrap(args.This());
         return args.This();

@@ -1,3 +1,6 @@
 
 EventLog/Debug/*
 *.user
+eventlog.opensdf
+eventlog.sdf
+eventlog.suo
