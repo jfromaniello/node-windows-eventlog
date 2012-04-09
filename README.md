@@ -34,7 +34,7 @@ And you will see this:
 
 This module was built on c++/cli (.Net) and uses [System.Diagnostics.EventLog](http://msdn.microsoft.com/en-us/library/system.diagnostics.eventlog.aspx). 
 
-In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services run with the system account so this project works  well with [WinSer](https://github.com/jfromaniello/winser).
+In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services typically run under the system account, if you are looking on how to run node.js applications as a Windows Service have a look to [WinSer](https://github.com/jfromaniello/winser).
 
 
 ## TODO
