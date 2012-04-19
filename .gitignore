@@ -4,3 +4,4 @@ EventLog/Debug/*
 eventlog.opensdf
 eventlog.sdf
 eventlog.suo
+npm-debug.log
