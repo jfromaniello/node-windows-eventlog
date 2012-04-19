@@ -72,13 +72,15 @@ public:
 		    return ThrowException(Exception::TypeError(
 		        String::New("First argument must be the name of the event log source")));
 		}
-		if (!args[1]->IsString()) {
-		    return ThrowException(Exception::TypeError(
-		        String::New("Second argument must be the name of the event log: (Application, System)")));
-		}
-
+		
 		System::String^ s = ParseArgument(args, 0);
-		System::String^ ln = ParseArgument(args, 1);
+		System::String^ ln;
+
+		if (!args[1]->IsString()) {
+			ln = "Application";
+		}else{
+			ln = ParseArgument(args, 1);
+		}
 
 		EventLog* pm = new EventLog(s, ln);
 
@@ -93,14 +95,16 @@ public:
 		    return ThrowException(Exception::TypeError(
 		        String::New("First argument must be the message to log.")));
 		}
+		gcroot<System::String^> m = ParseArgument(args, 0);
+		gcroot<System::String^> t;
 		
+
 		if (!args[1]->IsString()) {
-		    return ThrowException(Exception::TypeError(
-		        String::New("Second argument must be the type of the entry Information/Warning/Error.")));
+		    t = "Information";
+		}else{
+			t = ParseArgument(args, 1);
 		}
 
-		gcroot<System::String^> m = ParseArgument(args, 0);
-		gcroot<System::String^> t = ParseArgument(args, 1);
 		gcroot<System::Diagnostics::EventLogEntryType> logt = (System::Diagnostics::EventLogEntryType)System::Enum::Parse(System::Diagnostics::EventLogEntryType::typeid, t);
 
 		EventLog* xthis = ObjectWrap::Unwrap<EventLog>(args.This());

@@ -12,23 +12,27 @@
 Initialize somewhere the logger like:
 
 ```js
-  var eventlog = require('windows-eventlog');
-  eventlog.init("MyAppName");
-```
-
-Then you can do:
-
-```js
-  var eventlog = require('windows-eventlog');
-  eventlog.log("This is an information messsage");
-  eventlog.log("This is another info message", "Information");
-  eventlog.log("This is an error message", "Error");
-  eventlog.log("This is a warning", "Warning");
+  var EventLog = require('windows-eventlog').EventLog;
+  var myeventlog = new EventLog("mySource");
+  myeventlog.log("a message");
 ```
 
 And you will see this:
 
 ![2012-04-09_1007.png](http://joseoncodecom.ipage.com/wp-content/uploads/images/2012-04-09_1007.png)
+
+### new EventLog(source[, logName])
+
+This create an instance of the EventLog with the given source. You can optionally pass a logName, defaults to "Application".
+
+If the source doesn't exist in the event log database it will be created with the givne log name.
+
+
+### eventLog.log(message[, logEntryType])
+
+This method will create an entry in the event log with the given message. 
+
+Optionally you can specify a [logEntryType](http://msdn.microsoft.com/es-es/library/system.diagnostics.eventlogentrytype(v=vs.80).aspx). The possible values for logEntryType are "Information", "Warning", "Error" and others two that you will never use :) 
 
 ## How it works
 
