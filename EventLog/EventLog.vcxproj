@@ -42,10 +42,9 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\node-v0.6.14\deps\v8\include;C:\node-v0.6.14\deps\uv\include;C:\node-v0.6.14\src;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\node-v0.6.14\Debug;C:\node-v0.6.14\Debug\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\node-v0.6.15\deps\v8\include;C:\node-v0.6.15\deps\uv\include;C:\node-v0.6.15\src;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\node-v0.6.15\Release;C:\node-v0.6.15\Release\lib;$(LibraryPath)</LibraryPath>
     <TargetExt>.node</TargetExt>
-    <ReferencePath>$(ReferencePath)</ReferencePath>
     <OutDir>$(SolutionDir)package\bin\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -77,14 +76,6 @@
     <ClCompile Include="EventLog.cpp">
       <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</CompileAsManaged>
     </ClCompile>
-    <ClCompile Include="v8external.cpp" />
-    <ClCompile Include="v8function.cpp" />
-    <ClCompile Include="v8value.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="v8external.h" />
-    <ClInclude Include="v8function.h" />
-    <ClInclude Include="v8value.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

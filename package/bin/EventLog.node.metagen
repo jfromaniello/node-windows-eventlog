@@ -7,10 +7,3 @@ Assembly System, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e0
 	hash=None, flags=None
 Assembly Microsoft.VisualC, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a: 
 	hash=None, flags=None
-Class v8sharp.V8Function: AutoLayout, AnsiClass, Class, Public, Sealed, BeforeFieldInit
-  :System.MulticastDelegate
-    Void .ctor(System.Object, IntPtr): PrivateScope, Public, SpecialName, RTSpecialName
-  Methods:
-    Invoke(Object[]): PrivateScope, Public, Final, Virtual, VtableLayoutMask
-    BeginInvoke(Object[], AsyncCallback, Object): PrivateScope, Public, Final, Virtual, VtableLayoutMask
-    EndInvoke(IAsyncResult): PrivateScope, Public, Final, Virtual, VtableLayoutMask
