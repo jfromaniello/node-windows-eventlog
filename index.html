@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Windows Event Log Js by jfromaniello</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Windows Event Log Js</h1>
+        <p>Native node.js module to log messages to the Windows EventLog</p>
+        <p class="view"><a href="https://github.com/jfromaniello/windowseventlogjs">View the Project on GitHub <small>jfromaniello/windowseventlogjs</small></a></p>
+        <ul>
+          <li><a href="https://github.com/jfromaniello/windowseventlogjs/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/jfromaniello/windowseventlogjs/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/jfromaniello/windowseventlogjs">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h2>Installation</h2>
+
+<pre><code>$ npm install windows-eventlog
+</code></pre>
+
+<h2>Usage</h2>
+
+<p>Initialize somewhere the logger like:</p>
+
+<div class="highlight">
+<pre>  <span class="kd">var</span> <span class="nx">EventLog</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'windows-eventlog'</span><span class="p">).</span><span class="nx">EventLog</span><span class="p">;</span>
+  <span class="kd">var</span> <span class="nx">myeventlog</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventLog</span><span class="p">(</span><span class="s2">"mySource"</span><span class="p">);</span>
+  <span class="nx">myeventlog</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"a message"</span><span class="p">);</span>
+</pre>
+</div>
+
+
+<p>And you will see this:</p>
+
+<p><img src="http://joseoncodecom.ipage.com/wp-content/uploads/images/2012-04-09_1007.png" alt="2012-04-09_1007.png"></p>
+
+<h3>new EventLog(source[, logName])</h3>
+
+<p>This create an instance of the EventLog with the given source. You can optionally pass a logName, defaults to "Application".</p>
+
+<p>If the source doesn't exist in the event log database it will be created with the givne log name.</p>
+
+<h3>eventLog.log(message[, logEntryType])</h3>
+
+<p>This method will create an entry in the event log with the given message. </p>
+
+<p>Optionally you can specify a <a href="http://msdn.microsoft.com/es-es/library/system.diagnostics.eventlogentrytype.aspx">logEntryType</a>. The possible values for logEntryType are "Information", "Warning", "Error" and others two that you will never use :) </p>
+
+<h2>How it works</h2>
+
+<p>This module was built on c++/cli (.Net) and uses <a href="http://msdn.microsoft.com/en-us/library/system.diagnostics.eventlog.aspx">System.Diagnostics.EventLog</a>. </p>
+
+<p>In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services typically run under the system account, if you are looking on how to run node.js applications as a Windows Service have a look to <a href="https://github.com/jfromaniello/winser">WinSer</a>.</p>
+
+<h2>TODO</h2>
+
+<ul>
+<li>Use uv_queue_work to execute the writelog method in a different thread ( ? )</li>
+</ul><h2>About win32 native modules</h2>
+
+<p>If you are looking on how to create native modules in windows follow <a href="https://github.com/saary/node.net/">this great tutorial</a>.</p>
+
+<h2>License</h2>
+
+<p>(The MIT License)</p>
+
+<p>Copyright (c) 2012 Jose Romaniello &lt;<a href="mailto:jfromaniello@gmail.com">jfromaniello@gmail.com</a>&gt;</p>
+      </section>
+    </div>
+    <footer>
+      <p>Project maintained by <a href="https://github.com/jfromaniello">jfromaniello</a></p>
+      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
+    </footer>
+    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
+    
+  </body>
+</html>
