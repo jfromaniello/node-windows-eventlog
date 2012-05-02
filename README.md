@@ -1,5 +1,4 @@
-
-# Windows EventLog Js
+# Windows Event Log Js
 
   Native node.js module to log messages to the Windows Event Log.
 
@@ -32,13 +31,13 @@ If the source doesn't exist in the event log database it will be created with th
 
 This method will create an entry in the event log with the given message. 
 
-Optionally you can specify a [logEntryType](http://msdn.microsoft.com/es-es/library/system.diagnostics.eventlogentrytype(v=vs.80).aspx). The possible values for logEntryType are "Information", "Warning", "Error" and others two that you will never use :) 
+Optionally you can specify a [logEntryType](http://msdn.microsoft.com/es-es/library/system.diagnostics.eventlogentrytype.aspx). The possible values for logEntryType are "Information", "Warning", "Error" and others two that you will never use :) 
 
 ## How it works
 
 This module was built on c++/cli (.Net) and uses [System.Diagnostics.EventLog](http://msdn.microsoft.com/en-us/library/system.diagnostics.eventlog.aspx). 
 
-In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services typically run under the system account, if you are looking on how to run node.js applications as a Windows Service have a look to [WinSer](https://github.com/jfromaniello/winser).
+In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services typically run under the system account, if you are looking on how to run node.js applications as a Windows Service have a look to [WinSer](http://jfromaniello.github.com/winser/).
 
 
 ## TODO
@@ -47,7 +46,7 @@ In order to log events you need to run the application with an elevated account:
 
 ## About win32 native modules
 
-If you are looking on how to create native modules in windows follow [this great tutorial](https://github.com/saary/node.net/).
+If you are looking on how to create native modules in windows follow [this great tutorial](https://github.com/saary/node.net/) and [this other post](http://joseoncode.com/2012/04/10/writing-your-first-native-module-for-node-dot-js-on-windows/) by me.
 
 ## License 
 
