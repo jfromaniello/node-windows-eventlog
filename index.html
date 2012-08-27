@@ -1,48 +1,56 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>Windows Event Log Js by jfromaniello</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <script src="javascripts/scale.fix.js"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-
+    <link href='https://fonts.googleapis.com/css?family=Chivo:900' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/pygment_trac.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="stylesheets/print.css" media="print" />
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <title>Windows Event Log Js by jfromaniello</title>
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-        <h1>Windows Event Log Js</h1>
-        <p>Native node.js module to log messages to the Windows EventLog</p>
-        <p class="view"><a href="https://github.com/jfromaniello/windowseventlogjs">View the Project on GitHub <small>jfromaniello/windowseventlogjs</small></a></p>
-        <ul>
-          <li><a href="https://github.com/jfromaniello/windowseventlogjs/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/jfromaniello/windowseventlogjs/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/jfromaniello/windowseventlogjs">View On <strong>GitHub</strong></a></li>
-        </ul>
-      </header>
-      <section>
-        <h2>Installation</h2>
+    <div id="container">
+      <div class="inner">
+
+        <header>
+          <h1>Windows Event Log Js</h1>
+          <h2>Native node.js module to log messages to the Windows EventLog</h2>
+        </header>
+
+        <section id="downloads" class="clearfix">
+          <a href="https://github.com/jfromaniello/windowseventlogjs/zipball/master" id="download-zip" class="button"><span>Download .zip</span></a>
+          <a href="https://github.com/jfromaniello/windowseventlogjs/tarball/master" id="download-tar-gz" class="button"><span>Download .tar.gz</span></a>
+          <a href="https://github.com/jfromaniello/windowseventlogjs" id="view-on-github" class="button"><span>View on GitHub</span></a>
+        </section>
+
+        <hr>
+
+        <section id="main_content">
+          <h2>Installation</h2>
 
 <pre><code>$ npm install windows-eventlog
 </code></pre>
 
-<h2>Usage</h2>
+<h2>Requisites</h2>
+
+<p>You need to have these two things installed in your system for now:</p>
+
+<ul>
+<li><a href="http://www.microsoft.com/en-us/download/details.aspx?id=5555">Visual c++ 2010 redistributable fox x86</a></li>
+<li><a href="http://www.microsoft.com/en-us/download/confirmation.aspx?id=17851">Microsoft .Net Framework 4.0</a></li>
+</ul><h2>Usage</h2>
 
 <p>Initialize somewhere the logger like:</p>
 
-<div class="highlight">
-<pre>  <span class="kd">var</span> <span class="nx">EventLog</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'windows-eventlog'</span><span class="p">).</span><span class="nx">EventLog</span><span class="p">;</span>
+<div class="highlight"><pre>  <span class="kd">var</span> <span class="nx">EventLog</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'windows-eventlog'</span><span class="p">).</span><span class="nx">EventLog</span><span class="p">;</span>
   <span class="kd">var</span> <span class="nx">myeventlog</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventLog</span><span class="p">(</span><span class="s2">"mySource"</span><span class="p">);</span>
   <span class="nx">myeventlog</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"a message"</span><span class="p">);</span>
-</pre>
-</div>
-
+</pre></div>
 
 <p>And you will see this:</p>
 
@@ -64,7 +72,7 @@
 
 <p>This module was built on c++/cli (.Net) and uses <a href="http://msdn.microsoft.com/en-us/library/system.diagnostics.eventlog.aspx">System.Diagnostics.EventLog</a>. </p>
 
-<p>In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services typically run under the system account, if you are looking on how to run node.js applications as a Windows Service have a look to <a href="https://github.com/jfromaniello/winser">WinSer</a>.</p>
+<p>In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services typically run under the system account, if you are looking on how to run node.js applications as a Windows Service have a look to <a href="http://jfromaniello.github.com/winser/">WinSer</a>.</p>
 
 <h2>TODO</h2>
 
@@ -72,20 +80,41 @@
 <li>Use uv_queue_work to execute the writelog method in a different thread ( ? )</li>
 </ul><h2>About win32 native modules</h2>
 
-<p>If you are looking on how to create native modules in windows follow <a href="https://github.com/saary/node.net/">this great tutorial</a>.</p>
+<p>If you are looking on how to create native modules in windows follow <a href="https://github.com/saary/node.net/">this great tutorial</a> and <a href="http://joseoncode.com/2012/04/10/writing-your-first-native-module-for-node-dot-js-on-windows/">this other post</a> by me.</p>
 
 <h2>License</h2>
 
 <p>(The MIT License)</p>
 
 <p>Copyright (c) 2012 Jose Romaniello &lt;<a href="mailto:jfromaniello@gmail.com">jfromaniello@gmail.com</a>&gt;</p>
-      </section>
+
+<p>Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:</p>
+
+<p>The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.</p>
+
+<p>THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+        </section>
+
+        <footer>
+          Windows Event Log Js is maintained by <a href="https://github.com/jfromaniello">jfromaniello</a><br>
+          This page was generated by <a href="http://pages.github.com">GitHub Pages</a>. Tactile theme by <a href="http://twitter.com/jasonlong">Jason Long</a>.
+        </footer>
+
+        
+      </div>
     </div>
-    <footer>
-      <p>Project maintained by <a href="https://github.com/jfromaniello">jfromaniello</a></p>
-      <p>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></p>
-    </footer>
-    <!--[if !IE]><script>fixScale(document);</script><!--<![endif]-->
-    
   </body>
 </html>
