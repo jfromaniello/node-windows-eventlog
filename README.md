@@ -6,6 +6,13 @@
 
     $ npm install windows-eventlog
 
+## Requisites
+
+You need to have these two things installed in your system for now:
+
+- [Visual c++ 2010 redistributable fox x86](http://www.microsoft.com/en-us/download/details.aspx?id=5555)
+- [Microsoft .Net Framework 4.0](http://www.microsoft.com/en-us/download/confirmation.aspx?id=17851)
+
 ## Usage
 
 Initialize somewhere the logger like:
