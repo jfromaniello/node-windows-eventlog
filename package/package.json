@@ -15,9 +15,7 @@
               "type" : "git", 
               "url" : "git://github.com/jfromaniello/windowseventlogjs.git"
             },
-  "dependencies": {
-  },
-  "main": "./bin/eventlog",
+  "main": "index.js",
   "os" : [ "win32"],
-  "cpu": [ "ia32" ]
+  "cpu": [ "ia32", "x64" ]
 }
