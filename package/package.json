@@ -1,7 +1,7 @@
 {
   "name": "windows-eventlog",
   "private": false,
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Native win32 module to log messages to the Windows EventLog",
   "keywords": ["windows", "services", "log", "logging", "logger"],
   "homepage": "http://jfromaniello.github.com/windowseventlogjs",

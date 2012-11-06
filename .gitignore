@@ -1,5 +1,6 @@
-
+EventLog/Release/*
 EventLog/Debug/*
+Release/*
 *.user
 eventlog.opensdf
 eventlog.sdf
