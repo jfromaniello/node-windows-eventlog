@@ -10,6 +10,7 @@
 #include <string>
 #include <iostream>
 #include <uv.h>
+#include <vcclr.h>
 
 using namespace node;
 using namespace v8;
@@ -64,28 +65,41 @@ public:
 		return m;
 	}
 
+	static std::wstring StringToWstring(System::String^ s)
+	{
+		pin_ptr<const wchar_t> wch = PtrToStringChars(s);
+		return std::wstring(wch);
+	}
+
     static Handle<Value> New(const Arguments& args)
     {
-		HandleScope scope;
+	HandleScope scope;
 
-		if (!args[0]->IsString()) {
-		    return ThrowException(Exception::TypeError(
-		        String::New("First argument must be the name of the event log source")));
-		}
-		
+	if (!args[0]->IsString()) {
+	    return ThrowException(Exception::TypeError(
+	        String::New("First argument must be the name of the event log source")));
+	}
+	
+	try
+	{
 		System::String^ s = ParseArgument(args, 0);
 		System::String^ ln;
-
+	
 		if (!args[1]->IsString()) {
 			ln = "Application";
 		}else{
 			ln = ParseArgument(args, 1);
 		}
-
+	
 		EventLog* pm = new EventLog(s, ln);
-
-        pm->Wrap(args.This());
-        return args.This();
+	
+	        pm->Wrap(args.This());
+	        return args.This();
+	}
+	catch (System::Exception^ e)
+	{
+		return ThrowException(Exception::Error(String::New((uint16_t *) (StringToWstring(e->Message)).c_str())));
+	}
     }
 
 
