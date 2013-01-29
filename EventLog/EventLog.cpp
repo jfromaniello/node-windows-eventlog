@@ -60,9 +60,7 @@ public:
 	
 	static inline gcroot<System::String^> ParseArgument(Arguments const&args, int argumentIndex)
 	{
-		Local<String> message = Local<String>::Cast(args[argumentIndex]);
-		gcroot<System::String^> m = gcnew System::String(((std::string)*v8::String::AsciiValue(message)).c_str());
-		return m;
+		return gcnew System::String((const wchar_t *) *v8::String::Value(args[argumentIndex]));
 	}
 
 	static std::wstring StringToWstring(System::String^ s)
