@@ -13,6 +13,13 @@ You need to have these two things installed in your system for now:
 - [Visual c++ 2010 redistributable fox x86](http://www.microsoft.com/en-us/download/details.aspx?id=5555)
 - [Microsoft .Net Framework 4.0](http://www.microsoft.com/en-us/download/confirmation.aspx?id=17851)
 
+If you have a newer version of Visual Studio than 2010 installed, you need to configure your environment variables so that node_gyp knows what version you are using (2012, 2013, etc).
+
+```
+GYP_MSVS_OVERRIDE_PATH=true
+GYP_MSVS_VERSION=2012
+```
+
 ## Usage
 
 Initialize somewhere the logger like:
