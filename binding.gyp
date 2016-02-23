@@ -12,13 +12,17 @@
             },
             'msbuild_settings': {
               'ClCompile': {
+	        'CompileAs': 'CompileAsCpp',
                 'ExceptionHandling': 'Async',
                 'CompileAsManaged':'true'
               }
             }
           }]
       ],
-      'include_dirs': ['.'],
+      'include_dirs': [
+          '.',
+          "<!(node -e \"require('nan')\")"
+      ],
       'sources': [
         'src/EventLog.cpp'
       ]
