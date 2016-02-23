@@ -9,7 +9,7 @@
     "logging",
     "logger"
   ],
-  "homepage": "http://jfromaniello.github.com/windowseventlogjs",
+  "homepage": "http://jfromaniello.github.com/node-windows-eventlog",
   "author": {
     "name": "Jose Fernando Romaniello",
     "email": "jfromaniello@gmail.com",
@@ -18,7 +18,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/jfromaniello/windowseventlogjs.git"
+    "url": "git://github.com/jfromaniello/node-windows-eventlog.git"
   },
   "main": "index.js",
   "scripts": {
