@@ -1,66 +1,59 @@
 # Windows Event Log Js
 
-  Native node.js module to log messages to the Windows Event Log.
+Native node.js module to log messages to the Windows Event Log.
 
 ## Installation
 
     $ npm install windows-eventlog
 
-## Requisites
+## Prerequisites
 
-You need to have these two things installed in your system for now:
+You need to have a compatible Visual Studio compiler installed, e.g.:
 
-- [Visual c++ 2010 redistributable fox x86](http://www.microsoft.com/en-us/download/details.aspx?id=5555)
-- [Microsoft .Net Framework 4.0](http://www.microsoft.com/en-us/download/confirmation.aspx?id=17851)
+- [Visual Studio Community 2015](https://www.visualstudio.com/products/visual-studio-community-vs)
+- [Visual C++ 2010 redistributable fox x86](http://www.microsoft.com/en-us/download/details.aspx?id=5555)
 
-If you have a newer version of Visual Studio than 2010 installed, you need to configure your environment variables so that node_gyp knows what version you are using (2012, 2013, etc).
-
-```
-GYP_MSVS_OVERRIDE_PATH=true
-GYP_MSVS_VERSION=2012
-```
 
 ## Usage
 
-Initialize somewhere the logger like:
+When using the library like this:
 
 ```js
   var EventLog = require('windows-eventlog').EventLog;
-  var myeventlog = new EventLog("mySource");
-  myeventlog.log("a message");
+  var myeventlog = new EventLog("MyAppName");
+  myeventlog.logSync("warn", "a message");
+  myeventlog.logSync("a message"); // severity defaults to "info"
+  myeventlog.log("error", "a message", function(err) {
+    if (err) throw err;
+  });
 ```
 
-And you will see this:
+you will see something like this:
 
 ![2012-04-09_1007.png](http://joseoncodecom.ipage.com/wp-content/uploads/images/2012-04-09_1007.png)
 
 ### new EventLog(source[, logName])
 
-This create an instance of the EventLog with the given source. You can optionally pass a logName, defaults to "Application".
+This creates an instance of the EventLog with the given source. You can optionally pass a logName, defaults to "Application".
 
 If the source doesn't exist in the event log database it will be created with the givne log name.
 
 
-### eventLog.log(message[, logEntryType])
+### eventLog.log([severity,] message, callback)
 
-This method will create an entry in the event log with the given message. 
+This method will create an entry in the event log with the given message.
 
-Optionally you can specify a [logEntryType](http://msdn.microsoft.com/es-es/library/system.diagnostics.eventlogentrytype.aspx). The possible values for logEntryType are "Information", "Warning", "Error" and others two that you will never use :) 
+Optionally you can specify a severity a.k.a [log entry type](http://msdn.microsoft.com/es-es/library/system.diagnostics.eventlogentrytype.aspx). The possible values are "info", "warn" and "error".
+
+### eventLog.logSync([severity,] message)
+
+Same as `eventLog.log()` except that it blocks.
 
 ## How it works
 
-This module was built on c++/cli (.Net) and uses [System.Diagnostics.EventLog](http://msdn.microsoft.com/en-us/library/system.diagnostics.eventlog.aspx). 
+This module is a native module using Windows' API function [ReportEvent](https://msdn.microsoft.com/en-us/library/windows/desktop/aa363679.aspx). 
 
-In order to log events you need to run the application with an elevated account: ie administrator or system account. Windows services typically run under the system account, if you are looking on how to run node.js applications as a Windows Service have a look to [WinSer](http://jfromaniello.github.com/winser/).
-
-
-## TODO
-
-- Use uv_queue_work to execute the writelog method in a different thread ( ? )
-
-## About win32 native modules
-
-If you are looking on how to create native modules in windows follow [this great tutorial](https://github.com/saary/node.net/) and [this other post](http://joseoncode.com/2012/04/10/writing-your-first-native-module-for-node-dot-js-on-windows/) by me.
+Node.js applications using this module do not require an elevated account to log to the Windows Event Log.
 
 ## License 
 
