@@ -1,6 +1,6 @@
 {
   "name": "windows-eventlog",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "Native win32 module to log messages to the Windows EventLog",
   "keywords": [
     "windows",
