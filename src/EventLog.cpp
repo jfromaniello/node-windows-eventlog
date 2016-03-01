@@ -56,6 +56,36 @@ namespace {
         return ReportEvent(hdl, type, category, eventId, user, numStrings, binDataSize, strings, binData);
     }
 
+    class EventLogAsync : public Nan::AsyncWorker {
+    public:
+        EventLogAsync(Nan::Callback *callback, HANDLE handle, DWORD eventId, WORD type, const std::string& message)
+            : Nan::AsyncWorker(callback), handle(handle), eventId(eventId), type(type), message(message) { }
+
+        virtual void Execute() {
+            if (!logSyncImpl(handle, eventId, type, message)) {
+                SetErrorMessage(getLastErrorAsString().c_str());
+            }
+        }
+
+        void HandleErrorCallback() {
+            Nan::HandleScope scope;
+            v8::Local <v8::Value> argv[] = { Nan::Error(ErrorMessage()) };
+            callback->Call(1, argv);
+        }
+
+        void HandleOKCallback() {
+            Nan::HandleScope scope;
+            v8::Local <v8::Value> argv[] = { Nan::Null() };
+            callback->Call(1, argv);
+        }
+
+    private:
+        HANDLE handle;
+        DWORD eventId;
+        WORD type;
+        std::string message;
+    };
+
     class EventLog : public Nan::ObjectWrap {
     public:
 
@@ -64,7 +94,8 @@ namespace {
             tpl->SetClassName(Nan::New("EventLog").ToLocalChecked());
             tpl->InstanceTemplate()->SetInternalFieldCount(1);
 
-            SetPrototypeMethod(tpl, "log", logSync);
+            SetPrototypeMethod(tpl, "log", logAsync);
+            SetPrototypeMethod(tpl, "logSync", logSync);
 
             constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
             Nan::Set(target, Nan::New("EventLog").ToLocalChecked(),
@@ -102,6 +133,29 @@ namespace {
 
         ~EventLog() {
             DeregisterEventSource(eventLogHandle_);
+        }
+
+        static NAN_METHOD(logAsync) {
+            if (!(info[0]->IsString() && info[1]->IsFunction()) &&
+                !(info[0]->IsString() && info[1]->IsString() && info[2]->IsFunction())) {
+                Nan::ThrowError("A message and callback must be provided.");
+                return;
+            }
+
+            bool severityProvided = info[1]->IsString();
+            std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
+            std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
+            Nan::Callback *callback = new Nan::Callback(info[severityProvided ? 2 : 1].As<v8::Function>());
+
+            WORD type;
+            if (!parseSeverity(severity, &type)) {
+                Nan::ThrowError(("Unsupported severity " + severity).c_str());
+                return;
+            }
+
+            DWORD eventId = 1000; // TODO: allow user to change event id.
+            EventLog* eventLog = Nan::ObjectWrap::Unwrap<EventLog>(info.Holder());
+            Nan::AsyncQueueWorker(new EventLogAsync(callback, eventLog->eventLogHandle_, eventId, type, message));
         }
 
         static NAN_METHOD(logSync) {
