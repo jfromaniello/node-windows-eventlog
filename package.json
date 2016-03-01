@@ -32,6 +32,7 @@
     "x64"
   ],
   "dependencies": {
+    "bindings": "^1.2.1",
     "nan": "^2.2.0"
   }
 }
