@@ -1,138 +1,198 @@
 #pragma comment(lib, "node")
 
-#using <mscorlib.dll>
-#using <system.dll>
-
 #include <node.h>
+#include <nan.h>
 #include <v8.h>
-#include <string>
-#include <gcroot.h>
-#include <string>
-#include <iostream>
-#include <uv.h>
-#include <vcclr.h>
 
-using namespace node;
-using namespace v8;
+#ifdef _WIN32
+#include <Windows.h>
+#endif
 
-class EventLog : ObjectWrap
-{
-private:
-	gcroot<System::Diagnostics::EventLog^> _eventLog;
+namespace {
 
-public:
+    static std::string getLastErrorAsString() {
+        DWORD errorMessageID = ::GetLastError();
+        if (errorMessageID == 0) {
+            return std::string();
+        }
 
-    static Persistent<FunctionTemplate> s_ct;
-    static void Init(Handle<Object> target)
-    {
-        HandleScope scope;
+        DWORD flags = FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS;
+        DWORD languageId = MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT);
+        LPSTR messageBuffer = NULL;
+        size_t size = FormatMessageA(flags, NULL, errorMessageID, languageId, (LPSTR)&messageBuffer, 0, NULL);
 
-        // set the constructor function
-        Local<FunctionTemplate> t = FunctionTemplate::New(New);
-
-        // set the node.js/v8 class name
-        s_ct = Persistent<FunctionTemplate>::New(t);
-        s_ct->InstanceTemplate()->SetInternalFieldCount(1);
-        s_ct->SetClassName(String::NewSymbol("EventLog"));
-
-        // registers a class member functions 
-        NODE_SET_PROTOTYPE_METHOD(s_ct, "log", Log);
-        
-        target->Set(String::NewSymbol("EventLog"),
-            s_ct->GetFunction());
+        std::string message(messageBuffer, size);
+        LocalFree(messageBuffer);
+        return message;
     }
 
-    EventLog(System::String^ source, System::String^ logName) 
-    {
-		if(!System::Diagnostics::EventLog::SourceExists(source)){
-			System::Diagnostics::EventLog::CreateEventSource(source, logName);
-		}
-        
-		_eventLog = gcnew System::Diagnostics::EventLog();
-		_eventLog->Source = source;
-	}
-
-    ~EventLog()
-    {
-		delete _eventLog;
-	}
-
-	
-	static inline gcroot<System::String^> ParseArgument(Arguments const&args, int argumentIndex)
-	{
-		return gcnew System::String((const wchar_t *) *v8::String::Value(args[argumentIndex]));
-	}
-
-	static std::wstring StringToWstring(System::String^ s)
-	{
-		pin_ptr<const wchar_t> wch = PtrToStringChars(s);
-		return std::wstring(wch);
-	}
-
-    static Handle<Value> New(const Arguments& args)
-    {
-	HandleScope scope;
-
-	if (!args[0]->IsString()) {
-	    return ThrowException(Exception::TypeError(
-	        String::New("First argument must be the name of the event log source")));
-	}
-	
-	try
-	{
-		System::String^ s = ParseArgument(args, 0);
-		System::String^ ln;
-	
-		if (!args[1]->IsString()) {
-			ln = "Application";
-		}else{
-			ln = ParseArgument(args, 1);
-		}
-	
-		EventLog* pm = new EventLog(s, ln);
-	
-	        pm->Wrap(args.This());
-	        return args.This();
-	}
-	catch (System::Exception^ e)
-	{
-		return ThrowException(Exception::Error(String::New((uint16_t *) (StringToWstring(e->Message)).c_str())));
-	}
+    static bool parseSeverity(const std::string& severity, WORD *type) {
+        if (severity == "info") {
+            *type = EVENTLOG_INFORMATION_TYPE;
+            return true;
+        }
+        else if (severity == "warn" || severity == "warning") {
+            *type = EVENTLOG_WARNING_TYPE;
+            return true;
+        }
+        else if (severity == "error") {
+            *type = EVENTLOG_ERROR_TYPE;
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 
-
-	static Handle<Value> Log(const Arguments& args)
-    {
-		if (!args[0]->IsString()) {
-		    return ThrowException(Exception::TypeError(
-		        String::New("First argument must be the message to log.")));
-		}
-		gcroot<System::String^> m = ParseArgument(args, 0);
-		gcroot<System::String^> t;
-		
-
-		if (!args[1]->IsString()) {
-		    t = "Information";
-		}else{
-			t = ParseArgument(args, 1);
-		}
-
-		gcroot<System::Diagnostics::EventLogEntryType> logt = (System::Diagnostics::EventLogEntryType)System::Enum::Parse(System::Diagnostics::EventLogEntryType::typeid, t);
-
-		EventLog* xthis = ObjectWrap::Unwrap<EventLog>(args.This());
-
-		xthis->_eventLog->WriteEntry(m, logt, 1000);
-
-	    return Undefined();
+    static bool logSyncImpl(HANDLE hdl, DWORD eventId, WORD type, const std::string& message) {
+        WORD category = 0; // no category
+        PSID user = NULL; // use process' user
+        DWORD binDataSize = 0; // no additional binary data provided
+        LPVOID binData = NULL;
+        const WORD numStrings = 1; // we just log the provided message
+        LPCTSTR strings[numStrings];
+        std::wstring wideMessage(message.begin(), message.end());
+        strings[0] = wideMessage.c_str();
+        return ReportEvent(hdl, type, category, eventId, user, numStrings, binDataSize, strings, binData);
     }
-};
 
-Persistent<FunctionTemplate> EventLog::s_ct;
+    class EventLogAsync : public Nan::AsyncWorker {
+    public:
+        EventLogAsync(Nan::Callback *callback, HANDLE handle, DWORD eventId, WORD type, const std::string& message)
+            : Nan::AsyncWorker(callback), handle(handle), eventId(eventId), type(type), message(message) { }
 
-extern "C" {
-    void init (v8::Handle<v8::Object> target)
-    {
-        EventLog::Init(target);
-    }
-    NODE_MODULE(EventLog, init);
-}
+        virtual void Execute() {
+            if (!logSyncImpl(handle, eventId, type, message)) {
+                SetErrorMessage(getLastErrorAsString().c_str());
+            }
+        }
+
+        void HandleErrorCallback() {
+            Nan::HandleScope scope;
+            v8::Local <v8::Value> argv[] = { Nan::Error(ErrorMessage()) };
+            callback->Call(1, argv);
+        }
+
+        void HandleOKCallback() {
+            Nan::HandleScope scope;
+            v8::Local <v8::Value> argv[] = { Nan::Null() };
+            callback->Call(1, argv);
+        }
+
+    private:
+        HANDLE handle;
+        DWORD eventId;
+        WORD type;
+        std::string message;
+    };
+
+    class EventLog : public Nan::ObjectWrap {
+    public:
+
+        static NAN_MODULE_INIT(Init) {
+            v8::Local<v8::FunctionTemplate> tpl = Nan::New<v8::FunctionTemplate>(New);
+            tpl->SetClassName(Nan::New("EventLog").ToLocalChecked());
+            tpl->InstanceTemplate()->SetInternalFieldCount(1);
+
+            SetPrototypeMethod(tpl, "log", logAsync);
+            SetPrototypeMethod(tpl, "logSync", logSync);
+
+            constructor().Reset(Nan::GetFunction(tpl).ToLocalChecked());
+            Nan::Set(target, Nan::New("EventLog").ToLocalChecked(),
+                Nan::GetFunction(tpl).ToLocalChecked());
+        }
+
+        static NAN_METHOD(New) {
+            if (!info.IsConstructCall()) {
+                const int argc = 2;
+                v8::Local <v8::Value> argv[argc] = { info[0], info[1] };
+                v8::Local <v8::Function> cons = Nan::New(constructor());
+                info.GetReturnValue().Set(cons->NewInstance(argc, argv));
+                return;
+            }
+
+            if (!info[0]->IsString()) {
+                Nan::ThrowError("First argument must be the name of the event log source");
+                return;
+            }
+
+            Nan::Utf8String source(info[0]->ToString());
+
+            EventLog* eventLog = new EventLog(*source);
+            eventLog->Wrap(info.This());
+            info.GetReturnValue().Set(info.This());
+        }
+
+        EventLog(const std::string& source) {
+            std::wstring wideSource(source.begin(), source.end());
+            eventLogHandle_ = RegisterEventSource(NULL, wideSource.c_str());
+            if (!eventLogHandle_) {
+                Nan::ThrowError(("Unable to register event source: " + getLastErrorAsString()).c_str());
+            }
+        }
+
+        ~EventLog() {
+            DeregisterEventSource(eventLogHandle_);
+        }
+
+        static NAN_METHOD(logAsync) {
+            if (!(info[0]->IsString() && info[1]->IsFunction()) &&
+                !(info[0]->IsString() && info[1]->IsString() && info[2]->IsFunction())) {
+                Nan::ThrowError("A message and callback must be provided.");
+                return;
+            }
+
+            bool severityProvided = info[1]->IsString();
+            std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
+            std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
+            Nan::Callback *callback = new Nan::Callback(info[severityProvided ? 2 : 1].As<v8::Function>());
+
+            WORD type;
+            if (!parseSeverity(severity, &type)) {
+                Nan::ThrowError(("Unsupported severity " + severity).c_str());
+                return;
+            }
+
+            DWORD eventId = 1000; // TODO: allow user to change event id.
+            EventLog* eventLog = Nan::ObjectWrap::Unwrap<EventLog>(info.Holder());
+            Nan::AsyncQueueWorker(new EventLogAsync(callback, eventLog->eventLogHandle_, eventId, type, message));
+        }
+
+        static NAN_METHOD(logSync) {
+            if (!(info[0]->IsString() && info[1]->IsString()) &&
+                !(info[0]->IsString() && info[1]->IsUndefined())) {
+                Nan::ThrowError("A message and an optional severity must be provided.");
+                return;
+            }
+
+            bool severityProvided = info[1]->IsString();
+            std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
+            std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
+
+            WORD type;
+            if (!parseSeverity(severity, &type)) {
+                Nan::ThrowError(("Unsupported severity " + severity).c_str());
+                return;
+            }
+
+            DWORD eventId = 1000; // TODO: allow user to change event id.
+            EventLog* eventLog = Nan::ObjectWrap::Unwrap<EventLog>(info.Holder());
+            if (!logSyncImpl(eventLog->eventLogHandle_, eventId, type, message)) {
+                Nan::ThrowError(("Error while logging " + getLastErrorAsString()).c_str());
+                return;
+            }
+
+            info.GetReturnValue().Set(true);
+        }
+
+        static inline Nan::Persistent<v8::Function> & constructor() {
+            static Nan::Persistent<v8::Function> my_constructor;
+            return my_constructor;
+        }
+
+        HANDLE eventLogHandle_;
+    };
+
+} // anonymous namespace
+
+NODE_MODULE(EventLog, EventLog::Init);
