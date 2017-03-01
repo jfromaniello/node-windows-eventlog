@@ -137,17 +137,14 @@ namespace {
 
         static NAN_METHOD(logAsync) {
             if (!(info[0]->IsString() && info[1]->IsFunction()) &&
-                !(info[0]->IsString() && info[1]->IsString() && info[2]->IsFunction()) &&
-				!(info[0]->IsString() && info[1]->IsString() && info[2]->IsNumber() && info[3]->IsFunction())) {
+                !(info[0]->IsString() && info[1]->IsString() && info[2]->IsFunction())) {
                 Nan::ThrowError("A message and callback must be provided.");
                 return;
             }
 
             bool severityProvided = info[1]->IsString();
-			bool eventIdProvided = !info[2]->IsUndefined() && info[2]->IsNumber();
             std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
             std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
-	    DWORD eventId = eventIdProvided ? info[2]->Uint32Value() : 1000;
             Nan::Callback *callback = new Nan::Callback(info[severityProvided ? 2 : 1].As<v8::Function>());
 
             WORD type;
@@ -156,7 +153,7 @@ namespace {
                 return;
             }
 
-//            DWORD eventId = 1000;  // TODO: allow user to change event id.
+            DWORD eventId = 1000; // TODO: allow user to change event id.
             EventLog* eventLog = Nan::ObjectWrap::Unwrap<EventLog>(info.Holder());
             Nan::AsyncQueueWorker(new EventLogAsync(callback, eventLog->eventLogHandle_, eventId, type, message));
         }
