@@ -137,14 +137,18 @@ namespace {
 
         static NAN_METHOD(logAsync) {
             if (!(info[0]->IsString() && info[1]->IsFunction()) &&
-                !(info[0]->IsString() && info[1]->IsString() && info[2]->IsFunction())) {
+                !(info[0]->IsString() && info[1]->IsString() && info[2]->IsFunction()) &&
+                !(info[0]->IsString() && info[1]->IsNumber() && info[2]->IsFunction()) &&
+                !(info[0]->IsString() && info[1]->IsString() && info[2]->IsNumber() && info[3]->IsFunction())) {
                 Nan::ThrowError("A message and callback must be provided.");
                 return;
             }
 
             bool severityProvided = info[1]->IsString();
+            bool eventIdProvided = info[1]->IsNumber() || info[2]->IsNumber();
             std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
             std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
+            DWORD eventId = eventIdProvided ? (info[1]->IsNumber() ? info[1]->Uint32Value() : info[2]->Uint32Value()) : 1000;
             Nan::Callback *callback = new Nan::Callback(info[severityProvided ? 2 : 1].As<v8::Function>());
 
             WORD type;
@@ -153,21 +157,24 @@ namespace {
                 return;
             }
 
-            DWORD eventId = 1000; // TODO: allow user to change event id.
             EventLog* eventLog = Nan::ObjectWrap::Unwrap<EventLog>(info.Holder());
             Nan::AsyncQueueWorker(new EventLogAsync(callback, eventLog->eventLogHandle_, eventId, type, message));
         }
 
         static NAN_METHOD(logSync) {
             if (!(info[0]->IsString() && info[1]->IsString()) &&
-                !(info[0]->IsString() && info[1]->IsUndefined())) {
+                !(info[0]->IsString() && info[1]->IsUndefined()) &&
+                !(info[0]->IsString() && info[1]->IsString() && info[2]->IsNumber()) &&
+                !(info[0]->IsString() && info[1]->IsNumber() && info[2]->IsUndefined())) {
                 Nan::ThrowError("A message and an optional severity must be provided.");
                 return;
             }
 
             bool severityProvided = info[1]->IsString();
+            bool eventIdProvided = !info[1]->IsUndefined() && info[1]->IsNumber() || !info[2]->IsUndefined() && info[2]->IsNumber();
             std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
             std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
+            DWORD eventId = eventIdProvided ? (info[1]->IsNumber() ? info[1]->Uint32Value() : info[2]->Uint32Value()) : 1000;
 
             WORD type;
             if (!parseSeverity(severity, &type)) {
@@ -175,7 +182,6 @@ namespace {
                 return;
             }
 
-            DWORD eventId = 1000; // TODO: allow user to change event id.
             EventLog* eventLog = Nan::ObjectWrap::Unwrap<EventLog>(info.Holder());
             if (!logSyncImpl(eventLog->eventLogHandle_, eventId, type, message)) {
                 Nan::ThrowError(("Error while logging " + getLastErrorAsString()).c_str());
