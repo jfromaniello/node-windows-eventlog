@@ -147,7 +147,7 @@ namespace {
 			bool eventIdProvided = !info[2]->IsUndefined() && info[2]->IsNumber();
             std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
             std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
-	    DWORD eventId = eventIdProvided ? (DWORD)info[2] : (DWORD)1000;
+	    DWORD eventId = eventIdProvided ? (DWORD)*Nan::Utf8String(info[2]->ToString()) : (DWORD)1000;
             Nan::Callback *callback = new Nan::Callback(info[severityProvided ? 2 : 1].As<v8::Function>());
 
             WORD type;
@@ -174,7 +174,7 @@ namespace {
 		bool eventIdProvided = !info[1]->IsUndefined() && info[1]->IsNumber() || !info[2]->IsUndefined() && info[2]->IsNumber();
             std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
             std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
-	    DWORD eventId = eventIdProvided ? info[1]->IsNumber() ? (DWORD)info[1] : (DWORD)info[2] : (DWORD)1000;
+	    DWORD eventId = eventIdProvided ? (DWORD)*Nan::Utf8String(info[1]->IsNumber() ? info[1]->ToString() : info[2]->ToString()) : (DWORD)1000;
 
             WORD type;
             if (!parseSeverity(severity, &type)) {
