@@ -174,7 +174,7 @@ namespace {
 		bool eventIdProvided = !info[1]->IsUndefined() && info[1]->IsNumber() || !info[2]->IsUndefined() && info[2]->IsNumber();
             std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
             std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
-	    UINT eventId = eventIdProvided ? (info[1]->IsNumber() ? info[1]->Uint32Value() : info[2]->Uint32Value()) : 1000;
+	    DWORD eventId = eventIdProvided ? (info[1]->IsNumber() ? info[1]->Uint32Value() : info[2]->Uint32Value()) : 1000;
 
             WORD type;
             if (!parseSeverity(severity, &type)) {
