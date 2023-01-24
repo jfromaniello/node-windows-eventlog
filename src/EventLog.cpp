@@ -70,13 +70,13 @@ namespace {
         void HandleErrorCallback() {
             Nan::HandleScope scope;
             v8::Local <v8::Value> argv[] = { Nan::Error(ErrorMessage()) };
-            callback->Call(1, argv);
+            Nan::Call(callback->GetFunction(), Nan::GetCurrentContext()->Global(), 1, argv);
         }
 
         void HandleOKCallback() {
             Nan::HandleScope scope;
             v8::Local <v8::Value> argv[] = { Nan::Null() };
-            callback->Call(1, argv);
+            Nan::Call(callback->GetFunction(), Nan::GetCurrentContext()->Global(), 1, argv);
         }
 
     private:
@@ -116,7 +116,7 @@ namespace {
                 return;
             }
 
-            Nan::Utf8String source(info[0]->ToString());
+            Nan::Utf8String source(info[0]);
 
             EventLog* eventLog = new EventLog(*source);
             eventLog->Wrap(info.This());
@@ -146,9 +146,10 @@ namespace {
 
             bool severityProvided = info[1]->IsString();
             bool eventIdProvided = info[1]->IsNumber() || info[2]->IsNumber();
-            std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
-            std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
-            DWORD eventId = eventIdProvided ? (info[1]->IsNumber() ? info[1]->Uint32Value() : info[2]->Uint32Value()) : 1000;
+            std::string severity = severityProvided ? *Nan::Utf8String(info[0]) : "info";
+
+            std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]);
+            DWORD eventId = eventIdProvided ? (info[1]->IsNumber() ? info[1] : info[2])->Uint32Value(info.GetIsolate()->GetCurrentContext()).ToChecked() : 1000;
             Nan::Callback *callback = new Nan::Callback(info[severityProvided ? 2 : 1].As<v8::Function>());
 
             WORD type;
@@ -172,9 +173,9 @@ namespace {
 
             bool severityProvided = info[1]->IsString();
             bool eventIdProvided = !info[1]->IsUndefined() && info[1]->IsNumber() || !info[2]->IsUndefined() && info[2]->IsNumber();
-            std::string severity = severityProvided ? *Nan::Utf8String(info[0]->ToString()) : "info";
-            std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]->ToString());
-            DWORD eventId = eventIdProvided ? (info[1]->IsNumber() ? info[1]->Uint32Value() : info[2]->Uint32Value()) : 1000;
+            std::string severity = severityProvided ? *Nan::Utf8String(info[0]) : "info";
+            std::string message = *Nan::Utf8String(info[severityProvided ? 1 : 0]);
+            DWORD eventId = eventIdProvided ? (info[1]->IsNumber() ? info[1] : info[2])->Uint32Value(info.GetIsolate()->GetCurrentContext()).ToChecked() : 1000;
 
             WORD type;
             if (!parseSeverity(severity, &type)) {
